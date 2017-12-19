@@ -1,10 +1,11 @@
-#include <stdio.h>
-#include <pthread.h>
-#include <stdlib.h>
+#include "csapp.h"
 
 void *thread(void *vargp);
 
-volatile int cnt = 0;
+volatile int cnt = 0; /* Counter */
+#ifdef MUTEX_SUPPORT
+sem_t mutex; /* Semaphore that protects conuter */
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -17,10 +18,14 @@ int main(int argc, char *argv[])
   }
   niters = atoi(argv[1]);
 
-  pthread_create(&tid1, NULL, thread, &niters);
-  pthread_create(&tid2, NULL, thread, &niters);
-  pthread_join(tid1, NULL);
-  pthread_join(tid2, NULL);
+#ifdef MUTEX_SUPPORT
+  Sem_init(&mutex, 0, 1); /* mutex = 1 */
+#endif
+
+  Pthread_create(&tid1, NULL, thread, &niters);
+  Pthread_create(&tid2, NULL, thread, &niters);
+  Pthread_join(tid1, NULL);
+  Pthread_join(tid2, NULL);
 
   if(cnt != 2 * niters)
   {
@@ -38,7 +43,13 @@ void *thread(void *vargp)
 
   for(i = 0; i < niters; i++)
   {
+#ifdef MUTEX_SUPPORT
+    P(&mutex);
     cnt++;
+    V(&mutex);
+#else
+    cnt++;
+#endif
   }
 
   return NULL;

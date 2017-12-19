@@ -4,9 +4,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <pthread.h>
+#include <semaphore.h>
 
 /* Our own error-handling functions */
+void unix_error(char *msg);
 void posix_error(int code, char *msg);
 
 /* Pthreads thread control wrappers */
@@ -18,5 +21,9 @@ void Pthread_detach(pthread_t tid);
 void Pthread_exit(void *retval);
 pthread_t Pthread_self(void);
 void Pthread_once(pthread_once_t *once_control, void (*init_function)());
+
+/* sem functions wrappers */
+void P(sem_t *s);
+void S(sem_t *s);
 
 #endif
