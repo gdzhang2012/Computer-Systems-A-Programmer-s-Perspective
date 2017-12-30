@@ -7,10 +7,15 @@
 #include <errno.h>
 #include <pthread.h>
 #include <semaphore.h>
+/* Network */
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 /* Our own error-handling functions */
 void unix_error(char *msg);
 void posix_error(int code, char *msg);
+void dns_error(char *msg);
 
 /* Pthreads thread control wrappers */
 void Pthread_create(pthread_t *tidp, pthread_attr_t *attrp,
@@ -25,5 +30,9 @@ void Pthread_once(pthread_once_t *once_control, void (*init_function)());
 /* sem functions wrappers */
 void P(sem_t *s);
 void S(sem_t *s);
+
+/* DNS wrappers */
+struct hostent *Gethostbyaddr(const char *addr, int len, int type);
+struct hostent *Gethostbyname(const char *name);
 
 #endif
