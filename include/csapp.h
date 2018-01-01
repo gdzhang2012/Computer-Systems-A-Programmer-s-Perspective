@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 #include <pthread.h>
 #include <semaphore.h>
@@ -11,6 +12,15 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+
+/* Simplifies calls to bind(), connect(), and accept() */
+typedef struct sockaddr SA;
+
+/* External variables */
+extern int h_errno;    /* defined by BIND for DNS errors */ 
+
+/* Misc constants */
+#define LISTENQ  1024  /* second argument to listen() */
 
 /* Our own error-handling functions */
 void unix_error(char *msg);
@@ -34,5 +44,16 @@ void S(sem_t *s);
 /* DNS wrappers */
 struct hostent *Gethostbyaddr(const char *addr, int len, int type);
 struct hostent *Gethostbyname(const char *name);
+
+/* Sockets interface wrappers */
+int Socket(int domain, int type, int protocol);
+
+/* Client/server helper functions */
+int open_clientfd(char *hostname, int portno);
+int open_listenfd(int portno);
+
+/* Wrappers for client/server helper functions */
+int Open_clientfd(char *hostname, int port);
+int Open_listenfd(int port); 
 
 #endif
