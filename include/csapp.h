@@ -6,12 +6,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+/* pthread */
 #include <pthread.h>
 #include <semaphore.h>
+
 /* Network */
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
+
+/* Default file permissions are DEF_MODE & ~DEF_UMASK */
+/* S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH */
+#define DEF_MODE   S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH
+#define DEF_UMASK  S_IWGRP|S_IWOTH
 
 /* Simplifies calls to bind(), connect(), and accept() */
 typedef struct sockaddr SA;

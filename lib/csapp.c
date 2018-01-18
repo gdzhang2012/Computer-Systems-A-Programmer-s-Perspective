@@ -266,6 +266,33 @@ int Open_listenfd(int port)
     return rc;
 }
 
+/********************************
+ * Wrappers for Unix I/O routines
+ ********************************/
+int Open(const char *pathname, int flags, mode_t mode)
+{
+  int rc;
+
+  if ((rc = open(pathname, flags, mode) < 0))
+  {
+    unix_error("Open error");
+  }
+
+  return rc;
+}
+
+ssize_t Read(int fd, void *buf, size_t count)
+{
+  ssize_t rc;
+
+  if ((rc = read(fd, buf, count) < 0))
+  {
+    unix_error("Read error");
+  }
+
+  return rc;
+}
+
 /*********************************************************************
  * The Rio package - robust I/O functions
  **********************************************************************/
