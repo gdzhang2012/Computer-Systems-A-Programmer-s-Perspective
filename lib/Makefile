@@ -1,7 +1,7 @@
 all: libcsapp.a
 
 libcsapp.a:
-	gcc -I../include csapp.c  -lpthread -c -o csapp.o 
+	gcc -I../include csapp.c -c -o csapp.o
 	ar rcs $@ csapp.o
 
 clean:
