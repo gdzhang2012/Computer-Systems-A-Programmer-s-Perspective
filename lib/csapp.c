@@ -1,6 +1,6 @@
 #include "csapp.h"
 
-/************************** 
+/**************************
  * Error-handling functions
  **************************/
 void posix_error(int code, char *msg) /* posix-style error */
@@ -25,7 +25,7 @@ void dns_error(char *msg) /* dns-style error */
 /************************************************
  * Wrappers for Pthreads thread control functions
  ************************************************/
-void Pthread_create(pthread_t *tidp, pthread_attr_t *attrp, 
+void Pthread_create(pthread_t *tidp, pthread_attr_t *attrp,
              void * (*routine)(void *), void *argp)
 {
   int rc;
@@ -75,7 +75,7 @@ pthread_t Pthread_self(void)
 {
   return pthread_self();
 }
- 
+
 void Pthread_once(pthread_once_t *once_control, void (*init_function)())
 {
   pthread_once(once_control, init_function);
@@ -109,7 +109,7 @@ void V(sem_t *sem)
 }
 
 /************************
- * DNS interface wrappers 
+ * DNS interface wrappers
  ***********************/
 struct hostent *Gethostbyaddr(const char *addr, int len, int type)
 {
@@ -135,7 +135,7 @@ struct hostent *Gethostbyname(const char *name)
   return p;
 }
 
-/**************************** 
+/****************************
  * Sockets interface wrappers
  ****************************/
 int Socket(int domain, int type, int protocol)
@@ -150,13 +150,13 @@ int Socket(int domain, int type, int protocol)
   return rc;
 }
 
-/******************************** 
+/********************************
  * Client/server helper functions
  ********************************/
 /*
- * open_clientfd - open connection to server at <hostname, port> 
+ * open_clientfd - open connection to server at <hostname, port>
  *   and return a socket descriptor ready for reading and writing.
- *   Returns -1 and sets errno on Unix error. 
+ *   Returns -1 and sets errno on Unix error.
  *   Returns -2 and sets h_errno on DNS (gethostbyname) error.
  */
  int open_clientfd(char *hostname, int port)
@@ -190,7 +190,7 @@ int Socket(int domain, int type, int protocol)
    return clientfd;
  }
 
-/*  
+/*
  * open_listenfd - open and return a listening socket on port
  *     Returns -1 and sets errno on Unix error.
  */
@@ -233,9 +233,9 @@ int Socket(int domain, int type, int protocol)
  }
 
 /******************************************
- * Wrappers for the client/server helper routines 
+ * Wrappers for the client/server helper routines
  ******************************************/
-int Open_clientfd(char *hostname, int port) 
+int Open_clientfd(char *hostname, int port)
 {
     int rc;
 
@@ -245,7 +245,7 @@ int Open_clientfd(char *hostname, int port)
       {
         unix_error("Open_clientfd Unix error");
       }
-	    else        
+      else
       {
 	      dns_error("Open_clientfd DNS error");
       }
@@ -254,7 +254,7 @@ int Open_clientfd(char *hostname, int port)
     return rc;
 }
 
-int Open_listenfd(int port) 
+int Open_listenfd(int port)
 {
     int rc;
 
@@ -408,7 +408,7 @@ static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n)
 
   /* Copy min(n, rp->rio_cnt) bytes from internal buf to user buf */
   cnt = n;
-  if (rip->rio_cnt < n)
+  if (rp->rio_cnt < n)
   {
     cnt = rp->rio_cnt;
   }
@@ -428,3 +428,77 @@ void rio_readinitb(rio_t *rp, int fd)
   rp->rio_cnt = 0;
   rp->rio_bufptr = rp->rio_buf;
 }
+
+/*
+ * rio_readlineb - robustly read a text line (buffered)
+ */
+ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen)
+{
+  int n, rc;
+  char c, *bufp = usrbuf;
+
+  for (n = 1; n < maxlen; n++)
+  {
+    if ((rc = rio_read(rp, &c, 1)) == 1)
+    {
+      *bufp++ = c;
+      if (c == '\n')
+      {
+        break;
+      }
+    }
+    else if (rc == 0)
+    {
+      if (n == 1)
+      {
+        return 0; /* EOF, no data read */
+      }
+      else
+      {
+        break; /* EOF, some data was read */
+      }
+    }
+    else
+    {
+      return -1; /* Error */
+    }
+  }
+  *bufp = '\0';
+
+  return n;
+}
+
+/*
+ * rio_readlineb - robustly read a text line (buffered)
+ */
+ssize_t rio_readnb(rio_t *rp, void *usrbuf, size_t n)
+{
+  size_t nleft = n;
+  ssize_t nread;
+  char *bufp = usrbuf;
+
+  while (nleft > 0)
+  {
+    if ((nread = rio_read(rp, bufp, nleft)) < 0)
+    {
+      if (errno == EINTR) /* Interrupted by sig handler return */
+      {
+        nread = 0; /* Call read() again */
+      }
+      else
+      {
+        return -1; /* errno set by read() */
+      }
+    }
+    else if (nread == 0)
+    {
+      break; /* EOF */
+    }
+
+    nleft -= nread;
+    bufp += nread;
+  }
+
+  return (n - nleft); /* Return >= 0*/
+}
+
