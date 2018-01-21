@@ -22,6 +22,9 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
+/* IO */
+#include <sys/stat.h>
+
 /* Default file permissions are DEF_MODE & ~DEF_UMASK */
 /* S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH */
 #define DEF_MODE   S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH
@@ -40,7 +43,7 @@ typedef struct {
 } rio_t;
 
 /* External variables */
-extern int h_errno;    /* defined by BIND for DNS errors */ 
+extern int h_errno;    /* defined by BIND for DNS errors */
 
 /* Misc constants */
 #define LISTENQ  1024  /* second argument to listen() */
@@ -77,7 +80,7 @@ int open_listenfd(int portno);
 
 /* Wrappers for client/server helper functions */
 int Open_clientfd(char *hostname, int port);
-int Open_listenfd(int port); 
+int Open_listenfd(int port);
 
 /* Rio (Robust I/O) package */
 ssize_t rio_readn(int fd, void *usrbuf, size_t n);
@@ -85,5 +88,17 @@ ssize_t rio_writen(int fd, void *usrbuf, size_t n);
 void rio_readinitb(rio_t *rp, int fd);
 ssize_t	rio_readnb(rio_t *rp, void *usrbuf, size_t n);
 ssize_t	rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen);
+
+/* Unix I/O wrappers */
+//int Open(const char *pathname, int flags, mode_t mode);
+//ssize_t Read(int fd, void *buf, size_t count);
+//ssize_t Write(int fd, const void *buf, size_t count);
+//off_t Lseek(int fildes, off_t offset, int whence);
+//void Close(int fd);
+//int Select(int  n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
+//	   struct timeval *timeout);
+//int Dup2(int fd1, int fd2);
+void Stat(const char *filename, struct stat *buf);
+//void Fstat(int fd, struct stat *buf) ;
 
 #endif
