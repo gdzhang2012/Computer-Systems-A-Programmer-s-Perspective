@@ -273,7 +273,7 @@ int Open(const char *pathname, int flags, mode_t mode)
 {
   int rc;
 
-  if ((rc = open(pathname, flags, mode) < 0))
+  if ((rc = open(pathname, flags, mode)) < 0)
   {
     unix_error("Open error");
   }
@@ -285,9 +285,21 @@ ssize_t Read(int fd, void *buf, size_t count)
 {
   ssize_t rc;
 
-  if ((rc = read(fd, buf, count) < 0))
+  if ((rc = read(fd, buf, count)) < 0)
   {
     unix_error("Read error");
+  }
+
+  return rc;
+}
+
+ssize_t Write(int fd, const void *buf, size_t count)
+{
+  ssize_t rc;
+
+  if ((rc = write(fd, buf, count)) < 0)
+  {
+    unix_error("Write error");
   }
 
   return rc;
