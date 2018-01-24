@@ -305,6 +305,35 @@ ssize_t Write(int fd, const void *buf, size_t count)
   return rc;
 }
 
+void Close(int fd)
+{
+  int rc;
+
+  if ((rc = close(fd)) < 0)
+  {
+    unix_error("Close error");
+  }
+}
+
+off_t Lseek(int fd, off_t offset, int whence)
+{
+  int rc;
+
+  if ((rc = lseek(fd, offset, whence)) < 0)
+  {
+    unix_error("Lseek error");
+  }
+
+  return rc;
+}
+
+void Stat(const char *filename, struct stat *buf)
+{
+  if (stat(filename, buf) < 0)
+  {
+    unix_error("Stat error");
+  }
+}
 /*********************************************************************
  * The Rio package - robust I/O functions
  **********************************************************************/
@@ -500,15 +529,4 @@ ssize_t rio_readnb(rio_t *rp, void *usrbuf, size_t n)
   }
 
   return (n - nleft); /* Return >= 0*/
-}
-
-/*
- * Unix I/O wrappers
- */
-void Stat(const char *filename, struct stat *buf)
-{
-  if (stat(filename, buf) < 0)
-  {
-    unix_error("Stat error");
-  }
 }
